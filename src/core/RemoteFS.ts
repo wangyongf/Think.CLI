@@ -1,68 +1,37 @@
-/**
- * demo configuration
- */
-const demo = {
-  remote: {
-    aliyun: {
-      scheme: 'sftp',
-      host: '121.42.59.52',
-      username: 'yongf',
-      password: 'yongf1996.',
-    },
-    test: {
-      scheme: 'ftp',
-      host: 'host',
-      username: 'username',
-    },
-    projectX: {
-      scheme: 'sftp',
-      host: 'host',
-      username: 'username',
-      privateKeyPath: '/Users/xx/.ssh/id_rsa',
-      rootPath: '/home/foo/some/projectx',
-    },
-  },
-};
+import * as Fs from 'fs';
+import * as Ftp from 'jsftp';
 
-/**
- * 默认配置
- */
-const defaultConfig = {
-  rootPath: '/',
-  connectTimeout: 1000 * 10,
-};
-
-/**
- * TODO: 获取用户配置信息
- */
-export function getUserSettings() {
-  return demo;
+interface ConnectConfig {
+  scheme: string;
+  host: string;
+  connectTimeout?: number;
+  username: string;
+  password?: string;
+  name: string;
+  port: number;
+  privateKeyPath?: string;
+  remotePath: string;
+  localPath: string;
 }
 
-function withDefault(name, remote) {
-  const copy = Object.assign({}, defaultConfig, remote);
-  copy.name = name.toLowerCase();
-  copy.scheme = copy.scheme.toLowerCase();
+export function connect(config: ConnectConfig) {
+  console.log('connecting...');
 
-  // tslint:disable-next-line triple-equals
-  if (copy.port == undefined) {
-    switch (copy.scheme) {
-      case 'sftp':
-        copy.port = 22;
-        break;
-      case 'ftp':
-        copy.port = 21;
-        break;
-      default:
-        break;
-    }
-  }
-
-  return copy;
+  _connect(config);
 }
 
-export function getRemoteList() {
-  const userConfig = getUserSettings();
-  const remote = userConfig.remote;
-  return Object.keys(remote).map(name => withDefault(name, remote[name]));
+function _connect(config: ConnectConfig) {
+  const ftpConfig = {
+    host: config.host,
+    port: config.port,
+    user: config.username,
+    pass: config.password,
+  };
+  const ftp = new Ftp(ftpConfig);
+
+  // 0. 确认本地文件存在
+  // 1. 列出所有本地文件
+  // 2. 上传所有文件到指定目录
+  // 3. 策略是循环时跑到一个文件就上报一个文件
+  // TODO
 }

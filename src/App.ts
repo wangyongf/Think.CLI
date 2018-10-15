@@ -1,13 +1,13 @@
-import * as think from 'commander';
+import * as Think from 'commander';
+import * as Config from './config/Config';
+import * as RemoteFS from './core/RemoteFS';
 
-think
-  .version('1.0.0', '-v, --version')
+Think.version('1.0.0', '-v, --version')
   .option('-i, --init', 'init something')
   .option('-g, --generate', 'generate something')
   .option('-r, --remove', 'remove something');
 
-think
-  .command('test')
+Think.command('test')
   .option('--w', 'just a test')
   .alias('t')
   .description('just An test')
@@ -20,16 +20,33 @@ think
     }
   });
 
-think.command('init').action(() => {
+Think.command('deploy <target>')
+  .description('deploy project with the specific config')
+  .action((target, option) => {
+    const targetConfig = Config.config(target);
+    if (targetConfig === undefined) {
+      console.log('target not configged, please check your config first');
+      return;
+    }
+
+    RemoteFS.connect(targetConfig);
+  });
+
+Think.command('pwd').action(() => {
+  console.log(process.env.PWD);
+  console.log('wangyongf');
+});
+
+Think.command('init').action(() => {
   console.log('init something');
 });
 
-think.command('generate').action(() => {
+Think.command('generate').action(() => {
   console.log('generate something');
 });
 
-think.command('remove').action(() => {
+Think.command('remove').action(() => {
   console.log('remove something');
 });
 
-think.parse(process.argv);
+Think.parse(process.argv);

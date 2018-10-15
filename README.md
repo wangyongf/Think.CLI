@@ -20,6 +20,7 @@ Think.CLI, a powerful cli for TeamZ.
 
 - Typescript
 - Prettier
+- [sergi/jsftp](https://github.com/sergi/jsftp)
 
 ## Donation
 
