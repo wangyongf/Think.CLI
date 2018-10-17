@@ -21,7 +21,7 @@ Think.CLI, a powerful cli for TeamZ.
 - Typescript
 - Prettier
 - [mscdex/ssh2](https://github.com/mscdex/ssh2)
-- [jyu213/ssh2-sftp-client](https://github.com/jyu213/ssh2-sftp-client)
+- [mityburner/sftp-client-promise](https://github.com/mityburner/sftp-client-promise)
 
 ## Donation
 

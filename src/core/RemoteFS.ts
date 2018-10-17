@@ -5,8 +5,7 @@ import * as SftpClient from 'sftp-client-promise';
 // import { Observable, Subject, ReplaySubject, from, of, range } from 'rxjs';
 import * as Rx from 'rxjs';
 import { map, filter, switchMap } from 'rxjs/operators';
-import * as Ora from 'ora';
-import ora = require('ora');
+import * as ora from 'ora';
 
 interface ConnectConfig {
   scheme: string;
@@ -75,6 +74,21 @@ function _connect(config: ConnectConfig) {
 }
 
 /**
+ * 顺序执行 Promise
+ * @param tasks 任务们
+ */
+function sequenceTasks(tasks) {
+  function recordValue(results, value) {
+    results.push(value);
+    return results;
+  }
+  const pushValue = recordValue.bind(null, []);
+  return tasks.reduce((promise, task) => {
+    return promise.then(task).then(pushValue);
+  }, Promise.resolve());
+}
+
+/**
  * 1. 连接服务器
  * 2. 创建所有文件夹
  * 3. 上传所有文件
@@ -98,7 +112,13 @@ function _performUpload(config: ConnectConfig) {
       // 2. 创建所有文件夹
       const allPromise = [];
       for (const remote of remoteDirectory) {
-        const tempPromise = conn.sftp('mkdir', { path: remote });
+        const tempPromise = conn
+          .sftp('exists', { path: remote })
+          .then(dirExist => {
+            if (!dirExist) {
+              return conn.sftp('mkdir', { path: remote });
+            }
+          });
         allPromise.push(tempPromise);
       }
       return Promise.all(allPromise);
@@ -110,6 +130,36 @@ function _performUpload(config: ConnectConfig) {
       // 3. 上传所有文件
       const allPromise = [];
       for (const temp of fileMap) {
+        // const tempPromise = () =>
+        //   conn.sftp('exists', { path: temp.remote }).then(fileExist => {
+        //     if (fileExist) {
+        //       // return conn.sftp('delete', { path: temp.remote }).then(() => {
+        //       //   return conn.sftp('createWriteStream', {
+        //       //     path: temp.remote,
+        //       //     data: Fs.createReadStream(temp.local),
+        //       //   });
+        //       // });
+        //       const deleteAction = () => {
+        //         return conn.sftp('delete', { path: temp.remote });
+        //       };
+        //       const uploadAction = () => {
+        //         return conn.sftp('createWriteStream', {
+        //           path: temp.remote,
+        //           data: Fs.createReadStream(temp.local),
+        //         });
+        //       };
+        //       return sequenceTasks([deleteAction, uploadAction]);
+        //     } else {
+        //       const uploadAction = () => {
+        //         conn.sftp('createWriteStream', {
+        //           path: temp.remote,
+        //           data: Fs.createReadStream(temp.local),
+        //         });
+        //       };
+        //       return sequenceTasks([uploadAction]);
+        //     }
+        //   });
+
         const tempPromise = conn.sftp('createWriteStream', {
           path: temp.remote,
           data: Fs.createReadStream(temp.local),
@@ -117,6 +167,7 @@ function _performUpload(config: ConnectConfig) {
         allPromise.push(tempPromise);
       }
 
+      // return sequenceTasks(allPromise);
       return Promise.all(allPromise);
     })
     .then(() => {
@@ -126,6 +177,7 @@ function _performUpload(config: ConnectConfig) {
     })
     .catch(err => {
       spinner.fail('upload failed');
+      console.error(err);
       conn.end();
       spinner.stop();
     });
