@@ -3,6 +3,8 @@ import * as Fs from 'fs';
 
 const CONFIG_FILE_NAME = '.thinkrc';
 
+export const DEBUG = false;
+
 const defaultConfig = {
   rootPath: '/',
   connectTimeout: 1000 * 10,
