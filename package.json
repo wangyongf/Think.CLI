@@ -1,8 +1,11 @@
 {
-  "name": "think.cli",
-  "version": "1.0.0",
+  "name": "teamz-think-cli",
+  "version": "1.0.4",
   "description": "think.cli, a powerful cli for TeamZ.",
-  "main": "index.js",
+  "main": "./dist/App.js",
+  "bin": {
+    "think": "./dist/App.js"
+  },
   "scripts": {
     "test": "test",
     "dev": "tsc -p ./",

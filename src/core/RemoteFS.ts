@@ -2,9 +2,6 @@ import { DEBUG } from './../config/Config';
 import * as Fs from 'fs';
 import * as Path from 'path';
 import * as SftpClient from 'sftp-client-promise';
-// import { Observable, Subject, ReplaySubject, from, of, range } from 'rxjs';
-import * as Rx from 'rxjs';
-import { map, filter, switchMap } from 'rxjs/operators';
 import * as ora from 'ora';
 
 interface ConnectConfig {

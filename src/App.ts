@@ -1,6 +1,9 @@
+#!/usr/bin/env node
+
 import * as Think from 'commander';
 import * as Config from './config/Config';
 import * as RemoteFS from './core/RemoteFS';
+import { ip } from './core/IPProvider';
 
 Think.version('1.0.0', '-v, --version')
   .option('-i, --init', 'init something')
@@ -8,24 +11,29 @@ Think.version('1.0.0', '-v, --version')
   .option('-r, --remove', 'remove something');
 
 Think.command('test')
-  .option('--w', 'just a test')
+  .option('-w, --watch <value>', 'just a test')
   .alias('t')
   .description('just An test')
   .action(option => {
-    const isWatch = option.w ? true : false;
-    if (isWatch) {
-      console.log('isWatch');
-    } else {
-      console.log('not isWatched');
+    console.log(option.watch);
+  });
+
+Think.command('show <option>')
+  .description('show what you want, eg: your IP')
+  .action((option, target) => {
+    if ('ip' === option) {
+      // show your IP
+      ip();
     }
   });
 
 Think.command('deploy <target>')
   .description('deploy project with the specific config')
+  .option('-c, --config <value>', 'with the specific configuration')
   .action((target, option) => {
-    const targetConfig = Config.config(target);
+    const targetConfig = Config.config(target, option.config);
     if (targetConfig === undefined) {
-      console.log('target not configged, please check your config first');
+      console.log('target not config, please check your config first');
       return;
     }
 

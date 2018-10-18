@@ -13,12 +13,12 @@ const defaultConfig = {
 /**
  * 开始读取配置文件
  */
-export function config(target: string) {
+export function config(target: string, configFile: string) {
   console.log('start load config');
   console.log('target = ' + target);
 
-  const pwd = process.env.PWD;
-  const configPath = Path.join(pwd, './', CONFIG_FILE_NAME);
+  // const pwd = process.env.PWD;
+  const configPath = Path.join(configFile);
   const hasConfig = Fs.existsSync(configPath);
   if (hasConfig) {
     const content = Fs.readFileSync(configPath, 'utf8');
